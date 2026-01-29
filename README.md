@@ -22,8 +22,7 @@
 本專案使用 `uv` 作為套件管理工具。請先安裝 `uv`：
 
 ```bash
-pip install uv
-
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ### 2. 安裝依賴
@@ -67,7 +66,7 @@ uv run ingest.py
 執行主程式開始與 Agent 對話：
 
 ```bash
-python main.py
+uv run main.py
 
 ```
 
