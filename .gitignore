@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+.vscode/
+
+# Optional
+chroma/
+tmp_folder/
+data/
+*.csv

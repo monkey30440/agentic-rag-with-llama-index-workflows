@@ -1,0 +1,45 @@
+[project]
+name = "agentic-rag-with-llama-index-workflows"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "chromadb>=1.4.1",
+    "llama-index>=0.14.13",
+    "llama-index-embeddings-openai>=0.5.1",
+    "llama-index-llms-openai>=0.6.15",
+    "llama-index-postprocessor-cohere-rerank>=0.5.1",
+    "llama-index-retrievers-bm25>=0.6.5",
+    "llama-index-vector-stores-chroma>=0.5.5",
+    "llama-parse>=0.6.54",
+    "python-dotenv>=1.2.1",
+]
+
+
+[tool.ruff]
+# 設定行長
+line-length = 100
+# 設定目標版本 (依專案需求調整: py39, py310, py311, py312)
+target-version = "py310"
+
+[tool.ruff.lint]
+# 啟用規則
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # isort (導入排序)
+    "UP",  # pyupgrade (語法升級)
+    "B",   # flake8-bugbear (常見錯誤)
+    "SIM", # flake8-simplify (簡化代碼)
+    "N",   # pep8-naming (命名規範)
+]
+
+# 忽略規則 (視情況調整)
+ignore = [
+    "E501", # 忽略行長過長 (交由 formatter 處理，linter 不報錯)
+]
+
+[tool.ruff.format]
+# 字串引號樣式 (double/single)
+quote-style = "double"
