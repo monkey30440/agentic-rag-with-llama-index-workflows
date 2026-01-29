@@ -58,7 +58,7 @@ OPENAI_API_KEY=your_api_key_here
 將您的 PDF 或 CSV 文件放入 `data/` 資料夾，執行以下指令建立索引：
 
 ```bash
-python ingest.py
+uv run ingest.py
 
 ```
 
