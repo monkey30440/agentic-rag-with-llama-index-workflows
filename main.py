@@ -28,17 +28,17 @@ async def main():
 
     workflow = EuroNCAPWorkflow(index=index, timeout=120, verbose=True)
 
-    query = "What is the capital of France?"
-    query = "In v1.0 test protocol, which section mentioned test scenarios?"
-    query = "In v4.3.1 test protocol, which section mentioned test scenarios?"
-    query = "What test scenarios added in v4.3.1 compared to v1.0?"
-    query = "In v4.3.1 test protocol, which test scenarios involve oncoming target?"
-    query = "List test scenario changes among v1.0, 3.0.2, and 4.3.1."
-    query = "Which test protocol was used in December 2020?"
-    query = "In which test protocol is CCFtap first added?"
+    # query = "What is the capital of France?"
+    # query = "In v1.0 test protocol, which section mentioned test scenarios?"
+    # query = "In v4.3.1 test protocol, which section mentioned test scenarios?"
+    # query = "What test scenarios added in v4.3.1 compared to v1.0?"
+    # query = "In v4.3.1 test protocol, which test scenarios involve oncoming target?"
+    # query = "List test scenario changes among v1.0, 3.0.2, and 4.3.1."
+    # query = "Which test protocol was used in December 2020?"
+    # query = "In which test protocol is CCFtap first added?"
     query = "What is the difference in CCRs scenario between v1.0 and 4.3.1?"
 
-    print("Quesition:")
+    print("Question:")
     print(query + "\n")
 
     response = await workflow.run(query=query)
