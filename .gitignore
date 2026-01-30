@@ -8,3 +8,5 @@ chroma/
 tmp_folder/
 data/
 *.csv
+lib/
+*.html

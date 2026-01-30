@@ -29,3 +29,5 @@ if not OPENAI_API_KEY:
 
 if not LLAMA_CLOUD_API_KEY:
     raise ValueError("CRITICAL: 'LLAMA_CLOUD_API_KEY' is missing in .env.")
+
+HTML_FILENAME = "workflow_graph.html"
