@@ -128,7 +128,7 @@ class EuroNCAPWorkflow(Workflow):
         self.dspy_synthesizer = Synthesizer()
 
     @step
-    async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | None:
+    async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | StopEvent | None:
         print("[Planner] Decomposing query via DSPy...")
 
         query = ev.query
@@ -139,6 +139,11 @@ class EuroNCAPWorkflow(Workflow):
         plan = prediction.plan
 
         task_count = len(plan.tasks)
+
+        if task_count == 0:
+            print("[Planner] No retrieval tasks generated. Reason: Out of domain knowledge.")
+            return StopEvent(result="Sorry, I do not have the knowledge to answer that question.")
+
         await ctx.store.set("total_tasks", task_count)
         await ctx.store.set("results", [])
         await ctx.store.set("original_query", query)
