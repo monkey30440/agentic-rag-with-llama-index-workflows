@@ -2,7 +2,6 @@ from datetime import datetime
 
 import dspy
 from llama_index.core import Settings, VectorStoreIndex
-from llama_index.core.prompts import PromptTemplate
 from llama_index.core.schema import NodeWithScore
 from llama_index.core.vector_stores import FilterOperator, MetadataFilter, MetadataFilters
 from llama_index.core.workflow import (
