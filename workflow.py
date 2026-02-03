@@ -39,7 +39,7 @@ class RetrievalTask(BaseModel):
     )
 
 
-class PlannerOutput(BaseModel):
+class RetrievalTaskList(BaseModel):
     tasks: list[RetrievalTask] = Field(
         ..., description="List of decomposed parallel retrieval tasks."
     )
@@ -59,7 +59,7 @@ class AugmentedContextEvent(Event):
     original_query: str
 
 
-class GenerateRetrievalPlan(dspy.Signature):
+class QueryToTasks(dspy.Signature):
     """
     You are a Senior Researcher specializing in Euro NCAP protocols.
     Decompose complex user queries into specific, independent "Retrieval Tasks".
@@ -77,39 +77,39 @@ class GenerateRetrievalPlan(dspy.Signature):
     query: str = dspy.InputField(desc="User Query to be decomposed")
     today: str = dspy.InputField(desc="Today's date (YYYY-MM-DD)")
 
-    plan: PlannerOutput = dspy.OutputField(desc="Structured decomposition plan")
+    plan: RetrievalTaskList = dspy.OutputField(desc="Structured decomposition plan")
 
 
-class GenerateCitedAnswer(dspy.Signature):
+class ContextToAnswer(dspy.Signature):
     """
-    You are an expert assistant for Euro NCAP. Answer strictly based on the provided context.
+    You are an expert assistant for Euro NCAP. Answer based strictly on the provided context.
 
     Guidelines:
-    1. Cite Specifics: You MUST cite the "File Name" or "Version" using brackets like [File: ...] or.
-    2. No Hallucination: If the answer isn't in the context, output "Insufficient reference material".
-    3. Comparative Analysis: Explicitly highlight differences if asked to compare.
+    1. Evidence-Based Inference: You are allowed to deduce answers (e.g., "first added", "removed", "changes") by comparing the content, versions, and dates across the provided documents.
+    2. Cite Specifics: You MUST cite the "File Name" or "Version" using brackets like [File: ...] for every fact or deduction.
+    3. Uncertainty Handling: If the context contains absolutely no relevant information to support even a logical deduction, output "Insufficient reference material".
     4. Tone: Professional, technical, and objective.
     """
 
-    context = dspy.InputField(desc="The retrieved reference materials from PDF documents.")
-    query = dspy.InputField(desc="The user's original question.")
+    context = dspy.InputField(desc="Retrieved reference materials")
+    query = dspy.InputField(desc="User's question")
 
-    answer = dspy.OutputField(desc="The final answer with precise citations.")
+    answer = dspy.OutputField(desc="Final answer with citations")
 
 
-class EuroNCAPPlannerModule(dspy.Module):
+class Planner(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.prog = dspy.ChainOfThought(GenerateRetrievalPlan)
+        self.prog = dspy.ChainOfThought(QueryToTasks)
 
     def forward(self, query: str, today: str):
         return self.prog(query=query, today=today)
 
 
-class EuroNCAPSynthesizerModule(dspy.Module):
+class Synthesizer(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.prog = dspy.ChainOfThought(GenerateCitedAnswer)
+        self.prog = dspy.ChainOfThought(ContextToAnswer)
 
     def forward(self, context: str, query: str):
         return self.prog(context=context, query=query)
@@ -124,8 +124,8 @@ class EuroNCAPWorkflow(Workflow):
         lm = dspy.LM(f"openai/{LLM_MODEL}", api_key=OPENAI_API_KEY)
         dspy.settings.configure(lm=lm)
 
-        self.dspy_planner = EuroNCAPPlannerModule()
-        self.dspy_synthesizer = EuroNCAPSynthesizerModule()
+        self.dspy_planner = Planner()
+        self.dspy_synthesizer = Synthesizer()
 
     @step
     async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | None:
