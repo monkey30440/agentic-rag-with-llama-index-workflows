@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import dspy
 from llama_index.core import Settings, VectorStoreIndex
 from llama_index.core.prompts import PromptTemplate
 from llama_index.core.schema import NodeWithScore
@@ -15,7 +16,7 @@ from llama_index.core.workflow import (
 from llama_index.postprocessor.cohere_rerank import CohereRerank
 from pydantic import BaseModel, Field
 
-from config import COHERE_API_KEY
+from config import COHERE_API_KEY, LLM_MODEL, OPENAI_API_KEY
 
 
 class RetrievalTask(BaseModel):
@@ -59,63 +60,95 @@ class AugmentedContextEvent(Event):
     original_query: str
 
 
+class GenerateRetrievalPlan(dspy.Signature):
+    """
+    You are a Senior Researcher specializing in Euro NCAP protocols.
+    Decompose complex user queries into specific, independent "Retrieval Tasks".
+
+    Decomposition Rules:
+    1. Comparative Queries ("Compare A and B"): Split into two tasks (Task for A, Task for B).
+       The 'rewritten_query' must be the SUBJECT ONLY (e.g., "AEB scoring"), strictly excluding words like "compare", "difference", "change".
+    2. Specific Queries: Generate a single precise task.
+    3. Field Rules:
+       - rewritten_query: Noun phrases or Section titles only.
+       - target_version: Only if specifically mentioned (e.g., v4.3.1).
+       - mode: 'precision' for specific versions/dates, 'global' for general history.
+    """
+
+    query: str = dspy.InputField(desc="User Query to be decomposed")
+    today: str = dspy.InputField(desc="Today's date (YYYY-MM-DD)")
+
+    plan: PlannerOutput = dspy.OutputField(desc="Structured decomposition plan")
+
+
+class GenerateCitedAnswer(dspy.Signature):
+    """
+    You are an expert assistant for Euro NCAP. Answer strictly based on the provided context.
+
+    Guidelines:
+    1. Cite Specifics: You MUST cite the "File Name" or "Version" using brackets like [File: ...] or.
+    2. No Hallucination: If the answer isn't in the context, output "Insufficient reference material".
+    3. Comparative Analysis: Explicitly highlight differences if asked to compare.
+    4. Tone: Professional, technical, and objective.
+    """
+
+    context = dspy.InputField(desc="The retrieved reference materials from PDF documents.")
+    query = dspy.InputField(desc="The user's original question.")
+
+    answer = dspy.OutputField(desc="The final answer with precise citations.")
+
+
+class EuroNCAPPlannerModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.prog = dspy.ChainOfThought(GenerateRetrievalPlan)
+
+    def forward(self, query: str, today: str):
+        return self.prog(query=query, today=today)
+
+
+class EuroNCAPSynthesizerModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.prog = dspy.ChainOfThought(GenerateCitedAnswer)
+
+    def forward(self, context: str, query: str):
+        return self.prog(context=context, query=query)
+
+
 class EuroNCAPWorkflow(Workflow):
     def __init__(self, index: VectorStoreIndex, timeout: int = 60, verbose: bool = True):
         super().__init__(timeout=timeout, verbose=verbose)
         self.index = index
         self.llm = Settings.llm
 
+        lm = dspy.LM(f"openai/{LLM_MODEL}", api_key=OPENAI_API_KEY)
+        dspy.settings.configure(lm=lm)
+
+        self.dspy_planner = EuroNCAPPlannerModule()
+        self.dspy_synthesizer = EuroNCAPSynthesizerModule()
+
     @step
     async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | None:
-        print("[Planner] Decomposing query...")
+        print("[Planner] Decomposing query via DSPy...")
 
         query = ev.query
         today_str = datetime.now().strftime("%Y-%m-%d")
 
-        prompt_template = PromptTemplate(
-            """
-            Today is {today}.
-            You are a Senior Researcher specializing in Euro NCAP protocols.
-            Your task is to decompose complex user queries into specific, independent "Retrieval Tasks".
-            This is similar to decomposing a large question into sub-questions for separate retrieval and later aggregation.
+        prediction = self.dspy_planner(query=query, today=today_str)
 
-            User Query: {query}
-
-            ### Decomposition Strategy:
-
-            1. **Comparative Queries**:
-               - If the query involves "Compare A and B" or "Changes from v1 to v2":
-               - **Strategy**: Must split into two independent tasks.
-               - Task 1: Query the topic for version A (target_version=A).
-               - Task 2: Query the topic for version B (target_version=B).
-               - *Keyword Tip*: Normalize `rewritten_query` for both tasks to the "Subject Noun" (e.g., set both to "AEB scoring criteria"), do NOT include "compare" or "difference".
-
-            2. **Multi-aspect Queries**:
-               - If the query asks for "Definition of X" and "Test speed of Y":
-               - **Strategy**: Split into two tasks, querying X and Y respectively.
-
-            3. **Specific Queries**:
-               - If the query is simple, generate a single precise task.
-
-            ### Field Filling Rules:
-            - **rewritten_query**: Core search terms. Should be "Noun Phrases" or "Section Titles". **STRICTLY FORBID** comparative adjectives (new, changed, diff).
-            - **target_version**: Fill strictly if a specific version (e.g., v4.3.1) is targeted. Leave blank for historical lookup.
-            - **mode**: Use 'precision' for specific versions, 'global' for cross-time evolution.
-
-            Output JSON format conforming to PlannerOutput.
-            """
-        )
-
-        plan = await self.llm.astructured_predict(
-            PlannerOutput, prompt_template, today=today_str, query=query
-        )
+        plan = prediction.plan
 
         task_count = len(plan.tasks)
         await ctx.store.set("total_tasks", task_count)
         await ctx.store.set("results", [])
         await ctx.store.set("original_query", query)
 
+        if hasattr(prediction, "reasoning"):
+            print(f"[Planner Reasoning]: {prediction.reasoning}")
+
         print(f"[Planner] Decomposition complete. Total tasks: {task_count}")
+
         for i, t in enumerate(plan.tasks):
             print(
                 f"   Task {i + 1}: [{t.mode}] Date={t.target_date} | Version={t.target_version} | Query='{t.rewritten_query}'"
@@ -199,8 +232,8 @@ class EuroNCAPWorkflow(Workflow):
         return None
 
     @step
-    async def synthesizer(self, ev: AugmentedContextEvent) -> StopEvent:  # ctx: Context,
-        print("[Synthesizer] Generating response...")
+    async def synthesizer(self, ev: AugmentedContextEvent) -> StopEvent:
+        print("[Synthesizer] Generating response via DSPy...")
 
         context_parts = []
         has_content = False
@@ -228,29 +261,10 @@ class EuroNCAPWorkflow(Workflow):
 
         full_context = "\n".join(context_parts)
 
-        prompt_template = PromptTemplate(
-            """
-            You are an expert assistant for Euro NCAP. Answer strictly based on the reference materials.
+        prediction = self.dspy_synthesizer(context=full_context, query=ev.original_query)
 
-            === Reference Materials Start ===
-            {context_str}
-            === Reference Materials End ===
-
-            User Query: {query}
-
-            Guidelines:
-            1. **Cite Specifics**: Mention the "File Name" or "Version" when citing rules.
-            2. **No Hallucination**: If the answer isn't in the text, say "Insufficient reference material".
-            3. **Comparative Analysis**: If comparing versions, explicitly highlight the differences found in the text.
-
-            Answer:
-            """
-        )
-
-        response = await self.llm.acomplete(
-            prompt_template.format(context_str=full_context, query=ev.original_query)
-        )
+        print(f"[Synthesizer Reasoning]: {prediction.reasoning}")
 
         print("[Synthesizer] Response generated.")
 
-        return StopEvent(result=str(response))
+        return StopEvent(result=str(prediction.answer))
