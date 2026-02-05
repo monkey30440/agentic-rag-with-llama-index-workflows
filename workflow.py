@@ -61,40 +61,54 @@ class AugmentedContextEvent(Event):
 
 class QueryToTasks(dspy.Signature):
     """
-    You are a Senior Researcher specializing in Euro NCAP protocols.
-    Decompose complex user queries into specific, independent "Retrieval Tasks".
+    Role: Euro NCAP Senior Researcher.
+    Objective: Transform a query into independent, high-precision retrieval tasks to minimize vector search noise.
 
-    Decomposition Rules:
-    1. Comparative Queries ("Compare A and B"): Split into two tasks (Task for A, Task for B).
-       The 'rewritten_query' must be the SUBJECT ONLY (e.g., "AEB scoring"), strictly excluding words like "compare", "difference", "change".
-    2. Specific Queries: Generate a single precise task.
-    3. Field Rules:
-       - rewritten_query: Noun phrases or Section titles only.
-       - target_version: Only if specifically mentioned (e.g., v4.3.1).
-       - mode: 'precision' for specific versions/dates, 'global' for general history.
+    Decision Path:
+    1. Temporal Reasoning: If query implies a time (e.g., "last year"), use {today} to derive a YYYY-MM-DD string for 'target_date'.
+    2. Scope Determination:
+        - If comparing versions/dates: Generate dual tasks.
+        - If asking for "history", "first added", or "evolution": Set mode='global'.
+    3. Metadata Mapping:
+        - 'Assessment Protocol': For scoring, points, or star-rating logic.
+        - 'Test Protocol': For setup, speeds, targets, or scenario execution.
+
+    Constraint Rules:
+    - rewritten_query: Extract the CORE TECHNICAL SUBJECT only.
+        * Example: "How does AEB test change in v3.0?" -> "AEB test execution scenarios".
+        * STRICTLY FORBIDDEN: ['compare', 'difference', 'change', 'new', 'old', 'vs', 'update'].
+    - target_version: Extract only numeric versions (e.g., "1.0", "4.3.1"). Do not invent versions.
     """
 
-    query: str = dspy.InputField(desc="User Query to be decomposed")
-    today: str = dspy.InputField(desc="Today's date (YYYY-MM-DD)")
+    query: str = dspy.InputField(desc="User question")
+    today: str = dspy.InputField(desc="Current date YYYY-MM-DD")
 
-    plan: RetrievalTaskList = dspy.OutputField(desc="Structured decomposition plan")
+    plan: RetrievalTaskList = dspy.OutputField(desc="List of retrieval tasks")
 
 
 class ContextToAnswer(dspy.Signature):
     """
-    You are an expert assistant for Euro NCAP. Answer based strictly on the provided context.
+    Role: Lead Euro NCAP Technical Auditor.
+    Objective: Synthesize retrieved protocol fragments into a factual, comparative, and highly-cited technical response.
 
-    Guidelines:
-    1. Evidence-Based Inference: You are allowed to deduce answers (e.g., "first added", "removed", "changes") by comparing the content, versions, and dates across the provided documents.
-    2. Cite Specifics: You MUST cite the "File Name" or "Version" using brackets like [File: ...] for every fact or deduction.
-    3. Uncertainty Handling: If the context contains absolutely no relevant information to support even a logical deduction, output "Insufficient reference material".
-    4. Tone: Professional, technical, and objective.
+    Audit Guidelines:
+    1. Cross-Version Synthesis: If context covers multiple versions, organize the answer chronologically or as a 'Before vs. After' comparison.
+    2. Fact-Checking: Only state information explicitly supported by the context. If the query asks for "changes", identify the delta between versions.
+    3. Missing Data: If the context is empty or irrelevant, state "Insufficient reference material for [Topic]" and explain what is missing.
+
+    Citation Standard:
+    - Every claim MUST be followed by a citation in brackets: [File: FileName, Version: X].
+    - If a fact is a deduction from two sources, cite both: [File: A; File: B].
+
+    Output Style:
+    - Use bullet points for technical requirements.
+    - Maintain a formal, neutral, and auditing-style tone.
     """
 
-    context = dspy.InputField(desc="Retrieved reference materials")
-    query = dspy.InputField(desc="User's question")
+    context: str = dspy.InputField(desc="Aggregated protocol snippets with metadata")
+    query: str = dspy.InputField(desc="User's technical inquiry")
 
-    answer = dspy.OutputField(desc="Final answer with citations")
+    answer: str = dspy.OutputField(desc="Cited technical report or delta analysis")
 
 
 class Planner(dspy.Module):
@@ -125,7 +139,10 @@ class EuroNCAPWorkflow(Workflow):
         dspy.settings.configure(lm=lm)
 
         self.dspy_planner = Planner()
+        # self.dspy_planner.load("optimized_planner.json")
+
         self.dspy_synthesizer = Synthesizer()
+        # self.dspy_synthesizer.load("optimized_synthesizer.json")
 
     @step
     async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | StopEvent | None:
