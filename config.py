@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-if not load_dotenv():
+if not load_dotenv(override=True):
     print("Warning: No .env file found.")
 
 BASE_DIR = Path(__file__).parent
@@ -15,7 +15,7 @@ COLLECTION_NAME = "euro_ncap_knowledge_base"
 
 LLM_MODEL = "gpt-4o"
 EMBEDDING_MODEL = "text-embedding-3-small"
-TEMPERATURE = 0
+TEMPERATURE = 0.0
 
 COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
