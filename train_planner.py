@@ -159,6 +159,7 @@ planner_optimizer = dspy.BootstrapFewShotWithRandomSearch(
     teacher_settings=dict(lm=TEACHER_LM),
     max_bootstrapped_demos=4,
     num_candidate_programs=16,
+    num_threads=1,
 )
 
 optimized_planner = planner_optimizer.compile(Planner(), trainset=planner_trainset)

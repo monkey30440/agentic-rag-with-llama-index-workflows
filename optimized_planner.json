@@ -1,0 +1,285 @@
+{
+  "prog.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "query": "HMI requirements for Speed Assist Systems.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": null,
+              "rewritten_query": "Speed Assist System HMI requirements"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Tolerances for CCRb vehicle speed.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRb vehicle speed tolerances"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Test scenarios for both Car-to-Car and Pedestrian systems.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "Car-to-Car test scenarios"
+            },
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "Pedestrian test scenarios"
+            }
+          ]
+        }
+      },
+      {
+        "query": "In which year was the CCFtap scenario first introduced?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "global",
+              "target_date": null,
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCFtap scenario introduction"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What are the current requirements for rescue sheets?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": null,
+              "rewritten_query": "rescue sheet requirements"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Star rating calculation method for occupant status.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Assessment Protocol",
+              "system_domain": null,
+              "rewritten_query": "occupant status star rating calculation"
+            }
+          ]
+        }
+      },
+      {
+        "query": "How many points are awarded for ELK?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Assessment Protocol",
+              "system_domain": null,
+              "rewritten_query": "ELK point awarding criteria"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Requirements for Child Presence Detection in version 11.0.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "11.0",
+              "protocol_type": "Test Protocol",
+              "system_domain": null,
+              "rewritten_query": "Child Presence Detection requirements"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the test speed for CCRs in v4.3.1?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "4.3.1",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRs test speed"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What are the new clarifications for CBna in v9.0?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "9.0",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "CBna clarifications"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Describe the target path for CPTA scenarios.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-10",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "CPTA scenario target path"
+            }
+          ]
+        }
+      },
+      {
+        "query": "Compare the test speed of CCRm between v3.0 and v4.1.",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "3.0",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRm test speed"
+            },
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "4.1",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRm test speed"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the difference in pedestrian impact point between 2020 and 2023?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2020-01-01",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "pedestrian impact point definition"
+            },
+            {
+              "mode": "precision",
+              "target_date": "2023-01-01",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "pedestrian impact point definition"
+            }
+          ]
+        }
+      },
+      {
+        "query": "How has the AEB VRU scoring changed over the years?",
+        "today": "2026-02-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "global",
+              "target_date": null,
+              "target_version": null,
+              "protocol_type": "Assessment Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "AEB VRU scoring criteria history"
+            }
+          ]
+        }
+      }
+    ],
+    "signature": {
+      "instructions": "Role: Euro NCAP Technical Retrieval Planner.\nObjective: Decompose the user's natural language inquiry into precise, atomic retrieval tasks optimized for a vector database containing Euro NCAP protocols.\n\n1. Retrieval Mode Logic:\n   - Set mode=\"global\" ONLY IF the query asks for history, evolution, introduction dates, or broad trends across versions (e.g., \"When was AEB introduced?\", \"History of VRU\").\n   - Set mode=\"precision\" for specific versions, dates, current standards (Today), or specific technical requirements (e.g., \"v4.3 requirements\", \"test speed in 2023\").\n\n2. Target Version & Date Logic (Only for mode=\"precision\"):\n   - target_version: Extract explicit version numbers (e.g., \"4.3\", \"1.0\"). If unrelated to a specific version, set to None.\n   - target_date: Extract explicit years or dates. If the query implies \"current\" or \"today\", use the 'today' input date. Otherwise, set to None.\n   - FOR mode=\"global\": ALWAYS set target_version and target_date to None.\n\n3. Protocol Type Logic (Priority Rule):\n   - \"Assessment Protocol\": CHOOSE ONLY IF the query explicitly mentions scoring, points, stars, ratings, or evaluation criteria.\n   - \"Test Protocol\": DEFAULT SELECTION. Use this for physical testing, scenarios, speeds, tolerances, dummy positioning, and vehicle setup.\n\n4. System Domain Logic (Strict Mapping):\n   - \"Car-to-Car (C2C)\": If query contains \"Car-to-Car\", \"C2C\", or scenarios starting with \"CC\" (CCRs, CCRm, CCRb, CCFtap, CCCscp, CCFhol, CCFhos).\n   - \"Vulnerable Road User (VRU)\": If query contains \"Pedestrian\", \"Bicyclist\", \"Motorcyclist\", \"VRU\", or scenarios starting with \"CP\", \"CB\", \"CM\".\n   - None: For all other domains (e.g., Safety Assist, LSS, Occupant Status) or if the domain is ambiguous.\n\n5. Query Rewriting Logic:\n   - Optimization: Convert natural language into technical noun phrases or section titles (e.g., \"how fast\" -> \"test speed specification\").\n   - Filtration: STRICTLY REMOVE all comparative or temporal terms (e.g., \"difference\", \"changed\", \"new\", \"old\", \"vs\", \"improvement\"). The query must focus on the *topic* to be retrieved, not the *action* of comparing.",
+      "fields": [
+        {
+          "prefix": "Query:",
+          "description": "User's technical inquiry about Euro NCAP standards."
+        },
+        {
+          "prefix": "Today:",
+          "description": "Current date (YYYY-MM-DD) to resolve 'current' or 'latest' references."
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Plan:",
+          "description": "A list of atomic retrieval tasks structured according to the logic above."
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.13",
+      "dspy": "3.1.2",
+      "cloudpickle": "3.1"
+    }
+  }
+}
