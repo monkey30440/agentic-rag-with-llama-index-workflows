@@ -32,6 +32,9 @@ class RetrievalTask(BaseModel):
     protocol_type: str | None = Field(
         None, description="Document type: 'Test Protocol' or 'Assessment Protocol'."
     )
+    system_domain: str | None = Field(
+        None, description="System domain: 'Car-to-Car' or 'Vulnerable Road User'."
+    )
     rewritten_query: str = Field(
         ...,
         description="""Optimized search keywords for this task. Must be noun phrases or section titles (e.g., 'AEB system section').
@@ -61,29 +64,40 @@ class AugmentedContextEvent(Event):
 
 class QueryToTasks(dspy.Signature):
     """
-    Role: Euro NCAP Senior Researcher.
-    Objective: Transform a query into independent, high-precision retrieval tasks to minimize vector search noise.
+    Role: Euro NCAP Technical Retrieval Planner.
+    Objective: Decompose the user's natural language inquiry into precise, atomic retrieval tasks optimized for a vector database containing Euro NCAP protocols.
 
-    Decision Path:
-    1. Temporal Reasoning: If query implies a time (e.g., "last year"), use {today} to derive a YYYY-MM-DD string for 'target_date'.
-    2. Scope Determination:
-        - If comparing versions/dates: Generate dual tasks.
-        - If asking for "history", "first added", or "evolution": Set mode='global'.
-    3. Metadata Mapping:
-        - 'Assessment Protocol': For scoring, points, or star-rating logic.
-        - 'Test Protocol': For setup, speeds, targets, or scenario execution.
+    1. Retrieval Mode Logic:
+       - Set mode="global" ONLY IF the query asks for history, evolution, introduction dates, or broad trends across versions (e.g., "When was AEB introduced?", "History of VRU").
+       - Set mode="precision" for specific versions, dates, current standards (Today), or specific technical requirements (e.g., "v4.3 requirements", "test speed in 2023").
 
-    Constraint Rules:
-    - rewritten_query: Extract the CORE TECHNICAL SUBJECT only.
-        * Example: "How does AEB test change in v3.0?" -> "AEB test execution scenarios".
-        * STRICTLY FORBIDDEN: ['compare', 'difference', 'change', 'new', 'old', 'vs', 'update'].
-    - target_version: Extract only numeric versions (e.g., "1.0", "4.3.1"). Do not invent versions.
+    2. Target Version & Date Logic (Only for mode="precision"):
+       - target_version: Extract explicit version numbers (e.g., "4.3", "1.0"). If unrelated to a specific version, set to None.
+       - target_date: Extract explicit years or dates. If the query implies "current" or "today", use the 'today' input date. Otherwise, set to None.
+       - FOR mode="global": ALWAYS set target_version and target_date to None.
+
+    3. Protocol Type Logic (Priority Rule):
+       - "Assessment Protocol": CHOOSE ONLY IF the query explicitly mentions scoring, points, stars, ratings, or evaluation criteria.
+       - "Test Protocol": DEFAULT SELECTION. Use this for physical testing, scenarios, speeds, tolerances, dummy positioning, and vehicle setup.
+
+    4. System Domain Logic (Strict Mapping):
+       - "Car-to-Car (C2C)": If query contains "Car-to-Car", "C2C", or scenarios starting with "CC" (CCRs, CCRm, CCRb, CCFtap, CCCscp, CCFhol, CCFhos).
+       - "Vulnerable Road User (VRU)": If query contains "Pedestrian", "Bicyclist", "Motorcyclist", "VRU", or scenarios starting with "CP", "CB", "CM".
+       - None: For all other domains (e.g., Safety Assist, LSS, Occupant Status) or if the domain is ambiguous.
+
+    5. Query Rewriting Logic:
+       - Optimization: Convert natural language into technical noun phrases or section titles (e.g., "how fast" -> "test speed specification").
+       - Filtration: STRICTLY REMOVE all comparative or temporal terms (e.g., "difference", "changed", "new", "old", "vs", "improvement"). The query must focus on the *topic* to be retrieved, not the *action* of comparing.
     """
 
-    query: str = dspy.InputField(desc="User question")
-    today: str = dspy.InputField(desc="Current date YYYY-MM-DD")
+    query: str = dspy.InputField(desc="User's technical inquiry about Euro NCAP standards.")
+    today: str = dspy.InputField(
+        desc="Current date (YYYY-MM-DD) to resolve 'current' or 'latest' references."
+    )
 
-    plan: RetrievalTaskList = dspy.OutputField(desc="List of retrieval tasks")
+    plan: RetrievalTaskList = dspy.OutputField(
+        desc="A list of atomic retrieval tasks structured according to the logic above."
+    )
 
 
 class ContextToAnswer(dspy.Signature):
