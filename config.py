@@ -1,7 +1,11 @@
 import os
 from pathlib import Path
 
+import dspy
 from dotenv import load_dotenv
+from llama_index.core import Settings
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.llms.openai import OpenAI
 
 if not load_dotenv(override=True):
     print("Warning: No .env file found.")
@@ -31,3 +35,13 @@ if not LLAMA_CLOUD_API_KEY:
     raise ValueError("CRITICAL: 'LLAMA_CLOUD_API_KEY' is missing in .env.")
 
 HTML_FILENAME = "workflow_graph.html"
+
+
+def init_global_settings():
+    Settings.llm = OpenAI(model=LLM_MODEL, temperature=TEMPERATURE, api_key=OPENAI_API_KEY)
+    Settings.embed_model = OpenAIEmbedding(model=EMBEDDING_MODEL, api_key=OPENAI_API_KEY)
+
+    dspy_lm = dspy.LM(model=f"openai/{LLM_MODEL}", temperature=TEMPERATURE, api_key=OPENAI_API_KEY)
+    dspy.configure(lm=dspy_lm)
+
+    return dspy_lm

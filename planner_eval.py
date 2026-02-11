@@ -1,14 +1,11 @@
-import dspy
-
-from config import LLM_MODEL, OPENAI_API_KEY, TEMPERATURE
+from config import init_global_settings
 from planner_trainset import planner_trainset
 from workflow import Planner
 
-LM = dspy.LM(model=f"openai/{LLM_MODEL}", temperature=TEMPERATURE, api_key=OPENAI_API_KEY)
-dspy.configure(lm=LM)
-
 
 def evaluate_planner():
+    init_global_settings()
+
     planner = Planner()
     # planner.load("optimized_planner.json")
 

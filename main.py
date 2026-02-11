@@ -4,22 +4,19 @@ import chromadb
 import phoenix as px
 from dotenv import load_dotenv
 from llama_index.core import Settings, StorageContext, VectorStoreIndex, set_global_handler
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
-from config import CHROMA_DIR, COLLECTION_NAME, EMBEDDING_MODEL, LLM_MODEL, TEMPERATURE
+from config import CHROMA_DIR, COLLECTION_NAME, init_global_settings
 from workflow import EuroNCAPWorkflow
 
-load_dotenv()
+load_dotenv(override=True)
 
 session = px.launch_app()
 set_global_handler("arize_phoenix")
 
 
 async def main():
-    Settings.llm = OpenAI(model=LLM_MODEL, temperature=TEMPERATURE)
-    Settings.embed_model = OpenAIEmbedding(model=EMBEDDING_MODEL)
+    init_global_settings()
 
     chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     chroma_collection = chroma_client.get_or_create_collection(COLLECTION_NAME)

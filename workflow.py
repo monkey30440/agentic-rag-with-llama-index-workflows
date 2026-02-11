@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import dspy
-from llama_index.core import Settings, VectorStoreIndex
+from llama_index.core import VectorStoreIndex
 from llama_index.core.schema import NodeWithScore
 from llama_index.core.vector_stores import FilterOperator, MetadataFilter, MetadataFilters
 from llama_index.core.workflow import (
@@ -15,7 +15,7 @@ from llama_index.core.workflow import (
 from llama_index.postprocessor.cohere_rerank import CohereRerank
 from pydantic import BaseModel, Field
 
-from config import COHERE_API_KEY, LLM_MODEL, OPENAI_API_KEY
+from config import COHERE_API_KEY
 
 
 class RetrievalTask(BaseModel):
@@ -147,10 +147,6 @@ class EuroNCAPWorkflow(Workflow):
     def __init__(self, index: VectorStoreIndex, timeout: int = 60, verbose: bool = True):
         super().__init__(timeout=timeout, verbose=verbose)
         self.index = index
-        self.llm = Settings.llm
-
-        lm = dspy.LM(f"openai/{LLM_MODEL}", api_key=OPENAI_API_KEY)
-        dspy.settings.configure(lm=lm)
 
         self.dspy_planner = Planner()
         # self.dspy_planner.load("optimized_planner.json")
@@ -226,14 +222,14 @@ class EuroNCAPWorkflow(Workflow):
         metadata_filters = MetadataFilters(filters=filters) if filters else None
 
         vector_retriever = self.index.as_retriever(
-            similarity_top_k=50,
+            similarity_top_k=30,
             filters=metadata_filters,
         )
         vector_nodes = await vector_retriever.aretrieve(task.rewritten_query)
 
         if vector_nodes:
             reranker = CohereRerank(
-                top_n=20, model="rerank-multilingual-v3.0", api_key=COHERE_API_KEY
+                top_n=5, model="rerank-multilingual-v3.0", api_key=COHERE_API_KEY
             )
             reranked_nodes = reranker.postprocess_nodes(
                 vector_nodes, query_str=task.rewritten_query
