@@ -4,249 +4,253 @@
     "train": [],
     "demos": [
       {
-        "query": "HMI requirements for Speed Assist Systems.",
-        "today": "2026-02-10",
+        "augmented": true,
+        "query": "What are the scoring requirements for the CPNCO-50 scenario in VRU Assessment Protocol v4.5?",
+        "today": "2026-02-11",
+        "reasoning": "The query is asking for specific scoring requirements related to the CPNCO-50 scenario in the VRU Assessment Protocol version 4.5. Since it explicitly mentions scoring, the protocol type will be set to \"Assessment Protocol\". The mode is \"precision\" because it refers to a specific version of the protocol. The target date is not applicable here as the query is focused on a specific version rather than a date.",
         "plan": {
           "tasks": [
             {
               "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": null,
-              "rewritten_query": "Speed Assist System HMI requirements"
-            }
-          ]
-        }
-      },
-      {
-        "query": "Tolerances for CCRb vehicle speed.",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": "Car-to-Car",
-              "rewritten_query": "CCRb vehicle speed tolerances"
-            }
-          ]
-        }
-      },
-      {
-        "query": "Test scenarios for both Car-to-Car and Pedestrian systems.",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": "Car-to-Car",
-              "rewritten_query": "Car-to-Car test scenarios"
-            },
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": "Vulnerable Road User",
-              "rewritten_query": "Pedestrian test scenarios"
-            }
-          ]
-        }
-      },
-      {
-        "query": "In which year was the CCFtap scenario first introduced?",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "global",
               "target_date": null,
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": "Car-to-Car",
-              "rewritten_query": "CCFtap scenario introduction"
-            }
-          ]
-        }
-      },
-      {
-        "query": "What are the current requirements for rescue sheets?",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": null,
-              "rewritten_query": "rescue sheet requirements"
-            }
-          ]
-        }
-      },
-      {
-        "query": "Star rating calculation method for occupant status.",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
+              "target_version": "4.5",
               "protocol_type": "Assessment Protocol",
-              "system_domain": null,
-              "rewritten_query": "occupant status star rating calculation"
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "CPNCO-50 scoring requirements"
             }
           ]
         }
       },
       {
-        "query": "How many points are awarded for ELK?",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Assessment Protocol",
-              "system_domain": null,
-              "rewritten_query": "ELK point awarding criteria"
-            }
-          ]
-        }
-      },
-      {
-        "query": "Requirements for Child Presence Detection in version 11.0.",
-        "today": "2026-02-10",
+        "augmented": true,
+        "query": "What is the specified crossing speed of the Euro NCAP Bicyclist Target (EBT) in the CBNA scenario according to VRU Test Protocol v4.5?",
+        "today": "2026-11-10",
+        "reasoning": "The query is asking for a specific requirement related to the crossing speed of the Euro NCAP Bicyclist Target in a particular scenario of the VRU Test Protocol. Since it refers to a specific version (v4.5) and a specific technical requirement, the retrieval mode will be set to \"precision\". The target version will be set to \"4.5\", and the protocol type will be \"Test Protocol\" as it pertains to testing specifications. The system domain is \"Vulnerable Road User\" since it involves a bicyclist target.",
         "plan": {
           "tasks": [
             {
               "mode": "precision",
               "target_date": null,
-              "target_version": "11.0",
-              "protocol_type": "Test Protocol",
-              "system_domain": null,
-              "rewritten_query": "Child Presence Detection requirements"
-            }
-          ]
-        }
-      },
-      {
-        "query": "What is the test speed for CCRs in v4.3.1?",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": null,
-              "target_version": "4.3.1",
-              "protocol_type": "Test Protocol",
-              "system_domain": "Car-to-Car",
-              "rewritten_query": "CCRs test speed"
-            }
-          ]
-        }
-      },
-      {
-        "query": "What are the new clarifications for CBna in v9.0?",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": null,
-              "target_version": "9.0",
+              "target_version": "4.5",
               "protocol_type": "Test Protocol",
               "system_domain": "Vulnerable Road User",
-              "rewritten_query": "CBna clarifications"
+              "rewritten_query": "CBNA Euro NCAP Bicyclist Target crossing speed specification"
             }
           ]
         }
       },
       {
-        "query": "Describe the target path for CPTA scenarios.",
-        "today": "2026-02-10",
-        "plan": {
-          "tasks": [
-            {
-              "mode": "precision",
-              "target_date": "2026-02-10",
-              "target_version": null,
-              "protocol_type": "Test Protocol",
-              "system_domain": "Vulnerable Road User",
-              "rewritten_query": "CPTA scenario target path"
-            }
-          ]
-        }
-      },
-      {
-        "query": "Compare the test speed of CCRm between v3.0 and v4.1.",
-        "today": "2026-02-10",
+        "query": "Compare the target vehicle speed requirements for the CCRb scenario between Test Protocol v2.0.1 and v4.3.",
+        "today": "2026-03-15",
         "plan": {
           "tasks": [
             {
               "mode": "precision",
               "target_date": null,
-              "target_version": "3.0",
+              "target_version": "2.0.1",
               "protocol_type": "Test Protocol",
               "system_domain": "Car-to-Car",
-              "rewritten_query": "CCRm test speed"
+              "rewritten_query": "CCRb target vehicle speed requirements"
             },
             {
               "mode": "precision",
               "target_date": null,
-              "target_version": "4.1",
+              "target_version": "4.3",
               "protocol_type": "Test Protocol",
               "system_domain": "Car-to-Car",
-              "rewritten_query": "CCRm test speed"
+              "rewritten_query": "CCRb target vehicle speed requirements"
             }
           ]
         }
       },
       {
-        "query": "What is the difference in pedestrian impact point between 2020 and 2023?",
-        "today": "2026-02-10",
+        "query": "What is the exact definition and calculation method of a 50% impact overlap for the CCRm scenario in C2C Test Protocol v4.3?",
+        "today": "2026-09-01",
         "plan": {
           "tasks": [
             {
               "mode": "precision",
-              "target_date": "2020-01-01",
-              "target_version": null,
+              "target_date": null,
+              "target_version": "4.3",
               "protocol_type": "Test Protocol",
-              "system_domain": "Vulnerable Road User",
-              "rewritten_query": "pedestrian impact point definition"
-            },
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRm 50% impact overlap definition calculation method"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What are the VUT and GVT test speeds for the CCFtap scenario in the 2023 C2C Test Protocol?",
+        "today": "2026-06-12",
+        "plan": {
+          "tasks": [
             {
               "mode": "precision",
               "target_date": "2023-01-01",
               "target_version": null,
               "protocol_type": "Test Protocol",
-              "system_domain": "Vulnerable Road User",
-              "rewritten_query": "pedestrian impact point definition"
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCFtap VUT GVT test speed specification"
             }
           ]
         }
       },
       {
-        "query": "How has the AEB VRU scoring changed over the years?",
-        "today": "2026-02-10",
+        "query": "What is the ambient lighting specification for night tests in VRU Test Protocol v4.4?",
+        "today": "2026-07-20",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "4.4",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "Night test ambient lighting specification"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What are the initial test speeds for the CCRs scenario in the 2023 Test Protocol?",
+        "today": "2025-05-20",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2023-01-01",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRs initial test speed specification"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the allowable lateral path error for the VUT in AEB VRU test scenarios active today?",
+        "today": "2026-02-11",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2026-02-11",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "AEB VRU VUT lateral path error tolerance"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the Radar Cross Section (RCS) requirement for the Global Vehicle Target (GVT) in the current C2C Test Protocol?",
+        "today": "2020-08-15",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2020-08-15",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "Global Vehicle Target RCS radar cross section specification"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the required Peak Braking Coefficient (PBC) for the test track surface in the 2023 C2C Test Protocol?",
+        "today": "2027-04-10",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2023-01-01",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "test track surface Peak Braking Coefficient PBC requirement"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the VUT reverse test speed range for the CPRA scenario in VRU Test Protocol v4.4?",
+        "today": "2027-02-15",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "4.4",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Vulnerable Road User",
+              "rewritten_query": "CPRA VUT reverse test speed range specification"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the required VUT test mass condition for performing AEB tests in the 2023 C2C Test Protocol?",
+        "today": "2026-12-01",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2023-01-01",
+              "target_version": null,
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "AEB VUT test mass condition requirement"
+            }
+          ]
+        }
+      },
+      {
+        "query": "When was the oncoming vehicle scenario added to the test scenarios?",
+        "today": "2026-05-20",
         "plan": {
           "tasks": [
             {
               "mode": "global",
               "target_date": null,
               "target_version": null,
-              "protocol_type": "Assessment Protocol",
+              "protocol_type": "Test Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "Oncoming vehicle test scenario introduction timeline"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the pedestrian dummy lateral starting distance for the CPFA scenario at a 20 km/h VUT test speed in VRU Test Protocol v4.5.1?",
+        "today": "2026-10-05",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": null,
+              "target_version": "4.5.1",
+              "protocol_type": "Test Protocol",
               "system_domain": "Vulnerable Road User",
-              "rewritten_query": "AEB VRU scoring criteria history"
+              "rewritten_query": "CPFA 20 km/h VUT speed pedestrian dummy lateral starting distance"
+            }
+          ]
+        }
+      },
+      {
+        "query": "What is the required Forward Collision Warning (FCW) Time-to-Collision (TTC) to receive full points in the CCRm scenario in the 2023 Assessment Protocol?",
+        "today": "2027-01-15",
+        "plan": {
+          "tasks": [
+            {
+              "mode": "precision",
+              "target_date": "2023-01-01",
+              "target_version": null,
+              "protocol_type": "Assessment Protocol",
+              "system_domain": "Car-to-Car",
+              "rewritten_query": "CCRm Forward Collision Warning FCW Time-to-Collision TTC full points requirement"
             }
           ]
         }

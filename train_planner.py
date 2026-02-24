@@ -58,19 +58,15 @@ class QuerySemanticJudge(dspy.Signature):
 judge = dspy.ChainOfThought(QuerySemanticJudge)
 
 
-def planner_metric_with_feedback(gold, pred, trace=None, pred_name=None, pred_trace=None):
+def planner_metric(gold, pred, trace=None):
     gold_tasks = gold.plan.tasks
     pred_tasks = pred.plan.tasks
 
     ## Basic checks
     if len(gold_tasks) != len(pred_tasks):
-        return dspy.Prediction(
-            score=0.0,
-            feedback=f"Count Mismatch: Expected {len(gold_tasks)}, got {len(pred_tasks)}",
-        )
+        return 0.0
 
     total_score = 0.0
-    total_message = []
 
     def get_sort_key(task):
         return (
@@ -85,84 +81,63 @@ def planner_metric_with_feedback(gold, pred, trace=None, pred_name=None, pred_tr
     sorted_gold_meta = sorted(gold_tasks, key=get_sort_key)
     sorted_pred_meta = sorted(pred_tasks, key=get_sort_key)
 
-    for i, (gold_task, pred_task) in enumerate(
+    for _, (gold_task, pred_task) in enumerate(
         zip(sorted_gold_meta, sorted_pred_meta, strict=False)
     ):
+        task_score = 1.0
+
         # mode check
         if gold_task.mode != pred_task.mode:
-            task_score = 0.0
-            task_message = (
-                f"Mode Mismatch at Task {i + 1}: Expected {gold_task.mode}, got {pred_task.mode}."
-            )
-            return dspy.Prediction(score=task_score, feedback=task_message)
+            task_score *= 0.0
 
         # target date check
         if gold_task.target_date != pred_task.target_date:
-            task_score = 0.0
-            task_message = f"Target Date Mismatch at Task {i + 1}: Expected {gold_task.target_date}, got {pred_task.target_date}."
-            return dspy.Prediction(score=0.0, feedback=task_message)
+            task_score *= 0.0
 
         # target version check
         if gold_task.target_version != pred_task.target_version:
-            task_score = 0.0
-            task_message = f"Target Version Mismatch at Task {i + 1}: Expected {gold_task.target_version}, got {pred_task.target_version}."
-            return dspy.Prediction(score=task_score, feedback=task_message)
+            task_score *= 0.0
 
         # protocol type check
-        protocol_type_score = 1.0
         if gold_task.protocol_type != pred_task.protocol_type:
             if pred_task.protocol_type is None or str(pred_task.protocol_type) == "None":
-                protocol_type_score = 0.5
+                task_score *= 0.5
             else:
-                task_score = 0.0
-                task_message = f"Protocol Type Mismatch at Task {i + 1}: Expected {gold_task.protocol_type}, got {pred_task.protocol_type}."
-                return dspy.Prediction(score=task_score, feedback=task_message)
+                task_score *= 0.0
 
         # system domain check
-        system_domain_score = 1.0
         if gold_task.system_domain != pred_task.system_domain:
             if pred_task.system_domain is None or str(pred_task.system_domain) == "None":
-                system_domain_score = 0.5
+                task_score *= 0.5
             else:
-                task_score = 0.0
-                task_message = f"System Domain Mismatch at Task {i + 1}: Expected {gold_task.system_domain}, got {pred_task.system_domain}."
-                return dspy.Prediction(score=task_score, feedback=task_message)
+                task_score *= 0.0
 
         # Semantic check
-        semantic_score = 0.0
-        if gold_task.rewritten_query.lower() == pred_task.rewritten_query.lower():
-            semantic_score = 1.0
-            semantic_critique = "Perfect Match"
-        else:
-            with dspy.context(lm=JUDGE_LM):
-                res = judge(
-                    gold_query=gold_task.rewritten_query,
-                    pred_query=pred_task.rewritten_query,
-                )
-            semantic_score = float(res.rating)
-            semantic_critique = str(res.critique)
-
-        task_score = protocol_type_score * system_domain_score * semantic_score
-        task_message = f"Task {i + 1}: Protocol Type Score: {protocol_type_score}, System Domain Score: {system_domain_score}, Semantic Score: {semantic_score}, Semantic Critique: {semantic_critique}"
+        if task_score > 0:
+            if gold_task.rewritten_query.lower() == pred_task.rewritten_query.lower():
+                task_score *= 1.0
+            else:
+                with dspy.context(lm=JUDGE_LM):
+                    res = judge(
+                        gold_query=gold_task.rewritten_query,
+                        pred_query=pred_task.rewritten_query,
+                    )
+                semantic_score = float(res.rating)
+                task_score *= semantic_score
 
         total_score += task_score
-        total_message.append(task_message)
 
-    average_score = total_score / len(gold_tasks)
-    feedback_message = "; ".join(total_message)
-
-    return dspy.Prediction(score=average_score, feedback=feedback_message)
+    return float(total_score / len(gold_tasks))
 
 
 planner_optimizer = dspy.BootstrapFewShotWithRandomSearch(
-    metric=planner_metric_with_feedback,
+    metric=planner_metric,
     teacher_settings=dict(lm=TEACHER_LM),
-    max_bootstrapped_demos=4,
-    num_candidate_programs=16,
+    max_bootstrapped_demos=2,
+    num_candidate_programs=3,
     num_threads=1,
 )
 
 optimized_planner = planner_optimizer.compile(Planner(), trainset=planner_trainset)
-
 optimized_planner.save("optimized_planner.json")
 print("Optimization complete. Optimized planner saved to optimized_planner.json")

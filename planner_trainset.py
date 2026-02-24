@@ -2,295 +2,255 @@ import dspy
 
 from workflow import RetrievalTask, RetrievalTaskList
 
-TODAY = "2026-02-10"
-
 planner_trainset = [
-    # =========================================================================
-    # Group 1: Temporal & Evolution (時間維度：歷史與演變)
-    # 目的：訓練模型識別 "history", "introduced", "change" 並切換至 Global Mode。
-    # =========================================================================
     dspy.Example(
-        query="In which year was the CCFtap scenario first introduced?",
-        today=TODAY,
+        query="What are the initial test speeds for the CCRs scenario in the 2023 Test Protocol?",
+        today="2025-05-20",
         plan=RetrievalTaskList(
             tasks=[
                 RetrievalTask(
-                    mode="global",  # 關鍵：詢問 "引入時間" 屬於演變史
-                    target_date=None,
-                    target_version=None,
+                    mode="precision",
+                    target_date="2023-01-01",  # 從 "2023" 提取
+                    target_version=None,  # 未指定具體版本號
                     protocol_type="Test Protocol",
-                    system_domain="Car-to-Car",  # 根據 "CCFtap" 判斷為 C2C
-                    rewritten_query="CCFtap scenario introduction",
+                    system_domain="Car-to-Car",  # CCRs 屬於 C2C
+                    rewritten_query="CCRs initial test speed specification",
                 )
             ]
         ),
     ).with_inputs("query", "today"),
     dspy.Example(
-        query="How has the AEB VRU scoring changed over the years?",
-        today=TODAY,
+        query="What are the scoring requirements for the CPNCO-50 scenario in VRU Assessment Protocol v4.5?",
+        today="2026-02-11",
         plan=RetrievalTaskList(
             tasks=[
                 RetrievalTask(
-                    mode="global",  # 關鍵：詢問 "變化 (changed)" 且無特定版本
-                    target_date=None,
-                    target_version=None,
-                    protocol_type="Assessment Protocol",  # 關鍵：詢問 "scoring" -> Assessment
-                    system_domain="Vulnerable Road User",  # 關鍵：詢問 "VRU"
-                    rewritten_query="AEB VRU scoring criteria history",
+                    mode="precision",
+                    target_date=None,  # 已指定具體版本，日期設為 None
+                    target_version="4.5",  # 明確提取版本號
+                    protocol_type="Assessment Protocol",
+                    system_domain="Vulnerable Road User",  # CPNCO 屬於 VRU
+                    rewritten_query="CPNCO-50 scoring requirements points calculation",
                 )
             ]
         ),
     ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 2: Precision & Explicit Version (精確模式：指定版本)
-    # 目的：訓練模型提取 "vX.X" 版本號並鎖定 Precision Mode。
-    # =========================================================================
     dspy.Example(
-        query="What is the test speed for CCRs in v4.3.1?",
-        today=TODAY,
+        query="Compare the target vehicle speed requirements for the CCRb scenario between Test Protocol v2.0.1 and v4.3.",
+        today="2026-03-15",
         plan=RetrievalTaskList(
             tasks=[
                 RetrievalTask(
                     mode="precision",
                     target_date=None,
-                    target_version="4.3.1",  # 明確提取版本
-                    protocol_type="Test Protocol",
-                    system_domain="Car-to-Car",  # CCRs -> C2C
-                    rewritten_query="CCRs test speed",  # 簡單名詞片語
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    dspy.Example(
-        query="Requirements for Child Presence Detection in version 11.0.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=None,
-                    target_version="11.0",
-                    protocol_type="Test Protocol",
-                    system_domain=None,  # CPD 不屬於 C2C 或 VRU，保持 None
-                    rewritten_query="Child Presence Detection requirements",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 3: Implicit Today (精確模式：當下/預設)
-    # 目的：訓練模型處理 "current", "latest" 或未指定時間的情況，使用 input 的 today。
-    # =========================================================================
-    dspy.Example(
-        query="What are the current requirements for rescue sheets?",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,  # "current" -> 使用當前日期
-                    target_version=None,
-                    protocol_type="Test Protocol",
-                    system_domain=None,  # Rescue sheet 不屬於 C2C/VRU
-                    rewritten_query="rescue sheet requirements",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 4: Domain Mapping Logic (領域映射訓練)
-    # 目的：嚴格測試 CC* -> C2C, CP*/CB* -> VRU 的映射規則。
-    # =========================================================================
-    dspy.Example(
-        query="Describe the target path for CPTA scenarios.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",  # 未指定時間，預設查當下
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Test Protocol",
-                    system_domain="Vulnerable Road User",  # CPTA -> VRU
-                    rewritten_query="CPTA scenario target path",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    dspy.Example(
-        query="Tolerances for CCRb vehicle speed.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Test Protocol",
-                    system_domain="Car-to-Car",  # CCRb -> C2C
-                    rewritten_query="CCRb vehicle speed tolerances",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 5: Protocol Discrimination (協定類型辨識)
-    # 目的：區分 "Test" (物理/速度) 與 "Assessment" (分數/點數)。
-    # =========================================================================
-    dspy.Example(
-        query="How many points are awarded for ELK?",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Assessment Protocol",  # "points" -> Assessment
-                    system_domain=None,  # ELK 不屬於 C2C/VRU
-                    rewritten_query="ELK point awarding criteria",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    dspy.Example(
-        query="Star rating calculation method for occupant status.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Assessment Protocol",  # "Star rating" -> Assessment
-                    system_domain=None,
-                    rewritten_query="occupant status star rating calculation",
-                )
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 6: Comparative Tasks (版本比較 - 複雜拆解)
-    # 目的：訓練模型將 "Comparison" 拆解為兩個獨立的 Task，並去除比較詞。
-    # =========================================================================
-    dspy.Example(
-        query="Compare the test speed of CCRm between v3.0 and v4.1.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                # Task 1: v3.0
-                RetrievalTask(
-                    mode="precision",
-                    target_date=None,
-                    target_version="3.0",
+                    target_version="2.0.1",
                     protocol_type="Test Protocol",
                     system_domain="Car-to-Car",
-                    rewritten_query="CCRm test speed",  # 移除 "Compare", "between"
+                    rewritten_query="CCRb target vehicle speed requirements",
                 ),
-                # Task 2: v4.1
                 RetrievalTask(
                     mode="precision",
                     target_date=None,
-                    target_version="4.1",
+                    target_version="4.3",
                     protocol_type="Test Protocol",
                     system_domain="Car-to-Car",
-                    rewritten_query="CCRm test speed",
+                    rewritten_query="CCRb target vehicle speed requirements",
                 ),
             ]
         ),
     ).with_inputs("query", "today"),
     dspy.Example(
-        query="What is the difference in pedestrian impact point between 2020 and 2023?",
-        today=TODAY,
+        query="When was the oncoming vehicle scenario added to the test scenarios?",
+        today="2026-05-20",
         plan=RetrievalTaskList(
             tasks=[
-                # Task 1: 2020
+                RetrievalTask(
+                    mode="global",  # 詢問 "When ... added" -> Global
+                    target_date=None,  # Global 模式下不設特定日期
+                    target_version=None,  # Global 模式下不設特定版本
+                    protocol_type="Test Protocol",  # 詢問 "test scenarios"
+                    system_domain="Car-to-Car",  # 對向車屬於 C2C
+                    rewritten_query="Oncoming vehicle test scenario introduction timeline",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the allowable lateral path error for the VUT in AEB VRU test scenarios active today?",
+        today="2026-02-11",
+        plan=RetrievalTaskList(
+            tasks=[
                 RetrievalTask(
                     mode="precision",
-                    target_date="2020-01-01",  # 提取年份轉為日期
+                    target_date="2026-02-11",  # 映射為 "Today"
                     target_version=None,
-                    protocol_type="Test Protocol",  # 未提分數，預設 Test (Impact points指撞擊點)
-                    system_domain="Vulnerable Road User",  # Pedestrian -> VRU
-                    rewritten_query="pedestrian impact point definition",  # 移除 "difference"
-                ),
-                # Task 2: 2023
+                    protocol_type="Test Protocol",
+                    system_domain="Vulnerable Road User",
+                    rewritten_query="AEB VRU VUT lateral path error tolerance",  # 聚焦於 Lateral Path
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What are the VUT and GVT test speeds for the CCFtap scenario in the 2023 C2C Test Protocol?",
+        today="2026-06-12",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date="2023-01-01",  # 從 "2023" 提取年份
+                    target_version=None,
+                    protocol_type="Test Protocol",
+                    system_domain="Car-to-Car",  # CCFtap 屬於 C2C
+                    rewritten_query="CCFtap VUT GVT test speed specification",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the ambient lighting specification for night tests in VRU Test Protocol v4.4?",
+        today="2026-07-20",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date=None,  # 已指定版本，日期設為 None
+                    target_version="4.4",  # 提取版本號
+                    protocol_type="Test Protocol",
+                    system_domain="Vulnerable Road User",  # 夜間測試屬於 VRU
+                    rewritten_query="Night test ambient lighting specification",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the Radar Cross Section (RCS) requirement for the Global Vehicle Target (GVT) in the current C2C Test Protocol?",
+        today="2020-08-15",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date="2020-08-15",  # "current" -> Today
+                    target_version=None,
+                    protocol_type="Test Protocol",
+                    system_domain="Car-to-Car",  # GVT 屬於 C2C
+                    rewritten_query="Global Vehicle Target RCS radar cross section specification",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the exact definition and calculation method of a 50% impact overlap for the CCRm scenario in C2C Test Protocol v4.3?",
+        today="2026-09-01",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date=None,
+                    target_version="4.3",
+                    protocol_type="Test Protocol",
+                    system_domain="Car-to-Car",
+                    rewritten_query="CCRm 50% impact overlap definition calculation method",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the pedestrian dummy lateral starting distance for the CPFA scenario at a 20 km/h VUT test speed in VRU Test Protocol v4.5.1?",
+        today="2026-10-05",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date=None,
+                    target_version="4.5.1",
+                    protocol_type="Test Protocol",
+                    system_domain="Vulnerable Road User",
+                    rewritten_query="CPFA 20 km/h VUT speed pedestrian dummy lateral starting distance",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the specified crossing speed of the Euro NCAP Bicyclist Target (EBT) in the CBNA scenario according to VRU Test Protocol v4.5?",
+        today="2026-11-10",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date=None,
+                    target_version="4.5",
+                    protocol_type="Test Protocol",
+                    system_domain="Vulnerable Road User",
+                    rewritten_query="CBNA Target crossing speed specification",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the required VUT test mass condition for performing AEB tests in the 2023 C2C Test Protocol?",
+        today="2026-12-01",
+        plan=RetrievalTaskList(
+            tasks=[
                 RetrievalTask(
                     mode="precision",
                     target_date="2023-01-01",
                     target_version=None,
                     protocol_type="Test Protocol",
-                    system_domain="Vulnerable Road User",
-                    rewritten_query="pedestrian impact point definition",
-                ),
+                    system_domain="Car-to-Car",
+                    rewritten_query="AEB VUT test mass condition requirement",
+                )
             ]
         ),
     ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 7: Negative Constraints (負向約束測試)
-    # 目的：測試模型是否能忽略 "New", "Old", "Difference" 等干擾詞。
-    # =========================================================================
     dspy.Example(
-        query="What are the new clarifications for CBna in v9.0?",
-        today=TODAY,
+        query="What is the required Forward Collision Warning (FCW) Time-to-Collision (TTC) to receive full points in the CCRm scenario in the 2023 Assessment Protocol?",
+        today="2027-01-15",
+        plan=RetrievalTaskList(
+            tasks=[
+                RetrievalTask(
+                    mode="precision",
+                    target_date="2023-01-01",
+                    target_version=None,
+                    protocol_type="Assessment Protocol",
+                    system_domain="Car-to-Car",
+                    rewritten_query="CCRm Forward Collision Warning FCW Time-to-Collision TTC full points requirement",
+                )
+            ]
+        ),
+    ).with_inputs("query", "today"),
+    dspy.Example(
+        query="What is the VUT reverse test speed range for the CPRA scenario in VRU Test Protocol v4.4?",
+        today="2027-02-15",
         plan=RetrievalTaskList(
             tasks=[
                 RetrievalTask(
                     mode="precision",
                     target_date=None,
-                    target_version="9.0",
+                    target_version="4.4",
                     protocol_type="Test Protocol",
-                    system_domain="Vulnerable Road User",  # CBna -> VRU
-                    rewritten_query="CBna clarifications",  # 移除 "new"
+                    system_domain="Vulnerable Road User",
+                    rewritten_query="CPRA VUT reverse test speed range specification",
                 )
             ]
         ),
     ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 8: Multi-Domain Query (跨領域查詢)
-    # 目的：測試單一 Query 拆解為不同 Domain 的 Task。
-    # =========================================================================
     dspy.Example(
-        query="Test scenarios for both Car-to-Car and Pedestrian systems.",
-        today=TODAY,
+        query="What is the required Peak Braking Coefficient (PBC) for the test track surface in the 2023 C2C Test Protocol?",
+        today="2027-04-10",
         plan=RetrievalTaskList(
             tasks=[
                 RetrievalTask(
                     mode="precision",
-                    target_date=TODAY,
+                    target_date="2023-01-01",
                     target_version=None,
                     protocol_type="Test Protocol",
                     system_domain="Car-to-Car",
-                    rewritten_query="Car-to-Car test scenarios",
-                ),
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Test Protocol",
-                    system_domain="Vulnerable Road User",
-                    rewritten_query="Pedestrian test scenarios",
-                ),
-            ]
-        ),
-    ).with_inputs("query", "today"),
-    # =========================================================================
-    # Group 9: Edge Case - Ambiguous Domain (邊界案例)
-    # 目的：測試非標準關鍵字下的 Domain 判斷 (應為 None)
-    # =========================================================================
-    dspy.Example(
-        query="HMI requirements for Speed Assist Systems.",
-        today=TODAY,
-        plan=RetrievalTaskList(
-            tasks=[
-                RetrievalTask(
-                    mode="precision",
-                    target_date=TODAY,
-                    target_version=None,
-                    protocol_type="Test Protocol",
-                    system_domain=None,  # SAS 不屬於 C2C/VRU
-                    rewritten_query="Speed Assist System HMI requirements",
+                    rewritten_query="test track surface Peak Braking Coefficient PBC requirement",
                 )
             ]
         ),
     ).with_inputs("query", "today"),
 ]
+
+print(len(planner_trainset))

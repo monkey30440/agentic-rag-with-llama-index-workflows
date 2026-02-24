@@ -152,7 +152,7 @@ class EuroNCAPWorkflow(Workflow):
         self.dspy_planner.load("optimized_planner.json")
 
         self.dspy_synthesizer = Synthesizer()
-        # self.dspy_synthesizer.load("optimized_synthesizer.json")
+        self.dspy_synthesizer.load("optimized_synthesizer.json")
 
     @step
     async def planner(self, ctx: Context, ev: StartEvent) -> RetrievalTaskEvent | StopEvent | None:
